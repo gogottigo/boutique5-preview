@@ -1,0 +1,15 @@
+---
+import App from '../../ui/App.jsx';
+import Layout from '../../layouts/Layout.astro';
+import '../../styles/global.css';
+import { JOURNAL } from '../../data/journal.js';
+export function getStaticPaths() {
+  return JOURNAL.map(post => ({ params: { slug: post.slug } }));
+}
+const post = JOURNAL.find(item => item.slug === Astro.params.slug);
+const title = `${post.title} — Журнал BOUTIQUE 5`;
+const description = post.excerpt;
+---
+<Layout title={title} description={description}>
+  <App client:load initialPath={`/journal/${Astro.params.slug}`} />
+</Layout>

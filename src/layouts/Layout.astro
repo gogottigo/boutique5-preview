@@ -1,0 +1,14 @@
+---
+const { title = 'BOUTIQUE 5 — мужской гардероб', description = 'BOUTIQUE 5 — концепция современного мужского гардероба.' } = Astro.props;
+---
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f6f2" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body><slot /></body>
+</html>

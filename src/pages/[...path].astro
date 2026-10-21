@@ -1,0 +1,18 @@
+---
+import App from '../ui/App.jsx';
+import Layout from '../layouts/Layout.astro';
+import '../styles/global.css';
+import { BRANDS, products, slugifyBrand } from '../data/store.js';
+export function getStaticPaths() {
+  return [
+    { params: { path: 'catalog' } },
+    { params: { path: 'cart' } },
+    ...['men','accessories','shoes','sale','brands'].map(path => ({ params: { path } })),
+    ...BRANDS.map(brand => ({ params: { path: `brands/${slugifyBrand(brand)}` } })),
+    ...products.map(product => ({ params: { path: `product/${product.slug}` } })),
+  ];
+}
+---
+<Layout>
+<App client:load />
+</Layout>
