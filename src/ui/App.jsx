@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Heart, Menu, Search, ShoppingBag, UserRound, X } from 'lucide-react';
+import { Heart, Menu, Search, Shirt, ShoppingBag, Truck, UserRound, X } from 'lucide-react';
 import { FaInstagram, FaTelegramPlane, FaWhatsapp } from 'react-icons/fa';
 import { SiGooglemaps } from 'react-icons/si';
 import { SOCIAL_LINKS } from '../config/socialLinks.js';
@@ -10,6 +10,7 @@ import { JournalArticle, JournalIndex } from './JournalPages.jsx';
 import { getJournalPost } from '../data/journal.js';
 import JournalRail from './JournalRail.jsx';
 import SupportChat from './SupportChat.jsx';
+import TryOnPanel from './TryOnPanel.jsx';
 import ContactsPage from './ContactsPage.jsx';
 import AboutPage from './AboutPage.jsx';
 import DeliveryPage from './DeliveryPage.jsx';
@@ -121,7 +122,97 @@ function Home({navigate}) {
 }
 function FilterPanel({filters,setFilters}) {const update=(k,v)=>setFilters({...filters,[k]:v});return <aside className="filters"><label>Категория<select value={filters.category} onChange={e=>update('category',e.target.value)}><option value="">Все категории</option>{CATALOG_CATEGORY_GROUPS.map(group=><optgroup key={group.department} label={group.label}>{group.categories.map(category=><option key={category.path} value={category.path}>{category.label}</option>)}</optgroup>)}</select></label><label>Размер<select value={filters.size} onChange={e=>update('size',e.target.value)}><option value="">Все размеры</option>{['40','41','42','43','44','46','48','50','52','54'].map(x=><option key={x}>{x}</option>)}</select></label><label>Цвет<select value={filters.color} onChange={e=>update('color',e.target.value)}><option value="">Любой цвет</option>{[...new Set(products.map(p=>p.color))].map(x=><option key={x}>{x}</option>)}</select></label><div className="price-label">Цена, ₽</div><div className="price-inputs"><input type="number" aria-label="Цена от" placeholder="От" value={filters.min} onChange={e=>update('min',e.target.value)}/><input type="number" aria-label="Цена до" placeholder="До" value={filters.max} onChange={e=>update('max',e.target.value)}/></div><button className="clear-filters" onClick={()=>setFilters({category:'',size:'',color:'',min:'',max:''})}>Сбросить фильтры</button></aside>}
 function Catalog({navigate,favs,toggleFav,searchParams}) {const [filters,setFilters]=useState({category:searchParams.get('category')||'',size:'',color:'',min:'',max:''}),[sort,setSort]=useState('new'),[mobileFilters,setMobileFilters]=useState(false);const list=useMemo(()=>{let a=[...products];const q=(searchParams.get('q')||'').toLocaleLowerCase('ru');if(q)a=a.filter(p=>p.name.toLocaleLowerCase('ru').includes(q));if(searchParams.get('favorites'))a=a.filter(p=>favs.includes(p.id));if(filters.category)a=a.filter(p=>p.department===filters.category.split('/')[0]&&(p.categoryPath===filters.category||p.categoryPath.startsWith(`${filters.category}/`)));if(filters.size)a=a.filter(p=>p.sizes.includes(filters.size));if(filters.color)a=a.filter(p=>p.color===filters.color);if(filters.min)a=a.filter(p=>p.price>=+filters.min);if(filters.max)a=a.filter(p=>p.price<=+filters.max);if(sort==='low')a.sort((x,y)=>x.price-y.price);if(sort==='high')a.sort((x,y)=>y.price-x.price);return a},[filters,sort,favs,searchParams]);return <main className="catalog section"><div className="breadcrumbs"><button onClick={()=>navigate('/')}>Главная</button><span>/</span> Каталог</div><div className="catalog-head"><div><p className="eyebrow">BOUTIQUE 5 · ОДЕЖДА И АКСЕССУАРЫ</p><h1>{searchParams.get('favorites')?'Избранное':'Мужская коллекция'}</h1><p className="catalog-caption">Вещи для гардероба, который работает каждый день.<br/>Демонстрационные товары и цены.</p></div><span className="result-count">{list.length} моделей</span></div><div className="catalog-toolbar"><button className="mobile-filter" onClick={()=>setMobileFilters(!mobileFilters)}>Фильтры {mobileFilters?'−':'+'}</button><label>Сортировать <select value={sort} onChange={e=>setSort(e.target.value)}><option value="new">Сначала новинки</option><option value="low">Сначала дешевле</option><option value="high">Сначала дороже</option></select></label></div><div className="catalog-layout"><div className={mobileFilters?'filter-wrap visible':'filter-wrap'}><FilterPanel filters={filters} setFilters={setFilters}/></div>{list.length?<ProductGrid items={list} navigate={navigate} favs={favs} toggleFav={toggleFav}/>:<div className="empty-results"><h2>Ничего не найдено</h2><p>Попробуйте изменить запрос или сбросить фильтры.</p><button className="button" onClick={()=>{setFilters({category:'',size:'',color:'',min:'',max:''});navigate('/catalog')}}>Показать всё</button></div>}</div></main>}
-function Product({id,navigate,add,...cardProps}) {const item=products.find(p=>p.slug===id)||products[0],[size,setSize]=useState(''),[color,setColor]=useState(item.color),[notice,setNotice]=useState('');const related=products.filter(p=>p.id!==item.id).slice(0,4);return <main className="section product-page"><div className="breadcrumbs"><button onClick={()=>navigate('/')}>Главная</button><span>/</span><button onClick={()=>navigate(item.department==='men'?'/men':`/${item.department}`)}>{item.department==='men'?'Одежда':item.department==='shoes'?'Обувь':'Аксессуары'}</button><span>/</span>{item.name}</div><div className="product-layout"><div className="product-detail"><div className="gallery"><div className="gallery-main"><img src={item.image.replace('w=900','w=1400')} alt={item.name}/></div></div><div className="product-info"><a className="product-brand-link" href={withBase(`/brands/${slugifyBrand(item.brand)}`)} onClick={e=>{e.preventDefault();navigate(`/brands/${slugifyBrand(item.brand)}`)}}>{item.brand}</a><p className="eyebrow">{item.category} · ДЕМО-КАТАЛОГ</p><h1>{item.name}</h1><div className="detail-price">{item.compareAtPrice&&<del>{money(item.compareAtPrice)}</del>} {money(item.price)} <small>демонстрационная цена</small></div><p className="detail-color">Цвет: <b>{color}</b></p>{item.colors?.length>1&&<div className="variant-colors" aria-label="Выбор цвета">{item.colors.map((variant,i)=><button type="button" className={color===variant?'selected':''} key={variant} onClick={()=>setColor(variant)} aria-pressed={color===variant}><i className={`color-swatch swatch-${i%5}`}/>{variant}</button>)}</div>}<p className="stock-status">В наличии · демонстрационные данные</p><div className="size-heading">Размер <button onClick={()=>setNotice('Размерная сетка: ориентируйтесь на привычную посадку модели.')}>Таблица размеров</button></div><div className="size-options">{item.sizes.map(s=><button type="button" className={size===s?'selected':''} key={s} onClick={()=>setSize(s)} aria-pressed={size===s}>{s}</button>)}</div><button className="button add-button" onClick={()=>{if(!size){setNotice('Выберите размер, чтобы продолжить.');return}add(item,size,color);setNotice('Товар добавлен в корзину')}}>Добавить в корзину <span>↗</span></button>{notice&&<div className="notice" role="status">{notice}{notice.includes('добавлен')&&<button onClick={()=>navigate('/cart')}>Перейти в корзину</button>}</div>}<div className="detail-description"><p>{item.desc}</p><details open><summary>Состав</summary><p>{item.composition}</p></details><details><summary>Уход</summary><p>Деликатная чистка. Следуйте рекомендациям на ярлыке изделия.</p></details><details><summary>Доставка и возврат</summary><p>Информация демонстрационная: параметры доставки уточняются для конкретного региона.</p></details></div></div></div><section className="related"><div className="section-heading"><div><p className="eyebrow">ЗАВЕРШИТЕ ОБРАЗ</p><h2>Вам может подойти</h2></div></div><ProductGrid items={related} navigate={navigate} {...cardProps}/></section></div></main>}
+function Product({id,navigate,add,...cardProps}) {
+ const item=products.find(p=>p.slug===id)||products[0];
+ const [size,setSize]=useState('');
+ const [color,setColor]=useState(item.color);
+ const [notice,setNotice]=useState('');
+ const [lookOpen,setLookOpen]=useState(false);
+ const [expressOrder,setExpressOrder]=useState(false);
+ const [stickyVisible,setStickyVisible]=useState(false);
+ const [tryOnOpen,setTryOnOpen]=useState(false);
+ const productDetailRef=useRef(null);
+ const tryOnButtonRef=useRef(null);
+ const related=products.filter(p=>p.id!==item.id).slice(0,4);
+ const isFavorite=cardProps.favs?.includes(item.id)||false;
+ const toggleFavorite=()=>cardProps.toggleFav?.(item.id);
+ const purchase=()=>{
+  if(!size){setNotice('Выберите размер, чтобы продолжить.');const options=productDetailRef.current?.querySelector('.size-options');options?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});options?.querySelector('button')?.focus({preventScroll:true});return}
+  if(expressOrder){setNotice('Экспресс-заказ пока недоступен: оформление не подключено.');return}
+  add(item,size,color);
+  setNotice('Товар добавлен в корзину');
+ };
+ useEffect(()=>{
+  const target=productDetailRef.current;
+  if(!target)return;
+  let observer;
+  const headerHeight=()=>{
+   const header=document.querySelector('.header');
+   const cssHeight=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height'))||0;
+   return header?.getBoundingClientRect().height||cssHeight;
+  };
+  const observe=()=>{
+   observer?.disconnect();
+   const offset=headerHeight();
+   if('IntersectionObserver' in window){
+    observer=new IntersectionObserver(entries=>{
+     const entry=entries[0];
+     setStickyVisible(!entry.isIntersecting&&entry.boundingClientRect.bottom<=offset);
+    },{rootMargin:`-${offset}px 0px 0px 0px`,threshold:0});
+    observer.observe(target);
+   }else{
+    setStickyVisible(target.getBoundingClientRect().bottom<=offset);
+   }
+  };
+  const onScroll=()=>{
+   if(!('IntersectionObserver' in window))setStickyVisible(target.getBoundingClientRect().bottom<=headerHeight());
+  };
+  observe();
+  window.addEventListener('resize',observe);
+  if(!('IntersectionObserver' in window))window.addEventListener('scroll',onScroll,{passive:true});
+  return()=>{
+   observer?.disconnect();
+   window.removeEventListener('resize',observe);
+   window.removeEventListener('scroll',onScroll);
+  };
+ },[id]);
+ return <main className="section product-page">
+  <div className="breadcrumbs"><button onClick={()=>navigate('/')}>Главная</button><span>/</span><button onClick={()=>navigate(item.department==='men'?'/men':`/${item.department}`)}>{item.department==='men'?'Одежда':item.department==='shoes'?'Обувь':'Аксессуары'}</button><span>/</span>{item.name}</div>
+  <div className="product-layout">
+   <div className="product-detail" ref={productDetailRef}>
+    <div className="gallery"><div className="gallery-main">
+     <img src={item.image.replace('w=900','w=1400')} alt={item.name}/>
+     <div className="product-gallery-actions">
+      <button className="product-gallery-action try-on" type="button" ref={tryOnButtonRef} aria-label={`Открыть онлайн-примерку для товара ${item.name}`} title="Открыть онлайн-примерку" onClick={()=>setTryOnOpen(true)}><Shirt aria-hidden="true"/><span>Онлайн-примерка</span></button>
+      <button className={`product-gallery-action full-look${lookOpen?' is-expanded':''}`} type="button" aria-label="Перейти к рекомендациям: Вам может подойти" title="Перейти к рекомендациям" onClick={()=>{setLookOpen(value=>!value);document.getElementById('recommended-products')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});}}><span className="full-look-label">Весь образ</span><Shirt aria-hidden="true"/></button>
+     </div>
+    </div></div>
+    <div className="product-info">
+     <a className="product-brand-link" href={withBase(`/brands/${slugifyBrand(item.brand)}`)} onClick={e=>{e.preventDefault();navigate(`/brands/${slugifyBrand(item.brand)}`)}}>{item.brand}</a>
+     <p className="eyebrow">{item.category} · ДЕМО-КАТАЛОГ</p><h1>{item.name}</h1>
+     <div className="detail-price">{item.compareAtPrice&&<del>{money(item.compareAtPrice)}</del>} {money(item.price)} <small>демонстрационная цена</small></div>
+     <p className="detail-color">Цвет: <b>{color}</b></p>
+     {item.colors?.length>1&&<div className="variant-colors" aria-label="Выбор цвета">{item.colors.map((variant,i)=><button type="button" className={color===variant?'selected':''} key={variant} onClick={()=>setColor(variant)} aria-pressed={color===variant}><i className={`color-swatch swatch-${i%5}`}/>{variant}</button>)}</div>}
+     <p className="stock-status">В наличии · демонстрационные данные</p>
+     <div className="express-order-panel"><div className="express-order-copy"><Truck aria-hidden="true"/><div><strong>Экспресс-заказ</strong><span>Получить сегодня — с курьером или в магазине</span></div></div><button className={`express-order-switch${expressOrder?' is-on':''}`} type="button" role="switch" aria-checked={expressOrder} aria-label="Экспресс-заказ" onClick={()=>{setExpressOrder(value=>!value);setNotice('')}}><span/></button></div>
+     <div className="size-heading">Размер <button onClick={()=>setNotice('Размерная сетка: ориентируйтесь на привычную посадку модели.')}>Таблица размеров</button></div>
+     <div className="size-options">{item.sizes.map(s=><button type="button" className={size===s?'selected':''} key={s} onClick={()=>setSize(s)} aria-pressed={size===s}>{s}</button>)}</div>
+     <div className="product-purchase-actions"><button className={`button add-button${expressOrder?' is-express-order':''}`} onClick={purchase}>{expressOrder?'Экспресс-заказ':'Добавить в корзину'} <span>↗</span></button><button className={`product-detail-favorite${isFavorite?' is-favorite':''}`} type="button" aria-label={isFavorite?'Убрать из избранного':'Добавить в избранное'} aria-pressed={isFavorite} onClick={toggleFavorite}><Heart aria-hidden="true" fill={isFavorite?'currentColor':'none'}/></button></div>
+     {notice&&<div className="notice" role="status">{notice}{notice.includes('добавлен')&&<button onClick={()=>navigate('/cart')}>Перейти в корзину</button>}</div>}
+     <div className="detail-description"><p>{item.desc}</p><details open><summary>Состав</summary><p>{item.composition}</p></details><details><summary>Уход</summary><p>Деликатная чистка. Следуйте рекомендациям на ярлыке изделия.</p></details><details><summary>Доставка и возврат</summary><p>Информация демонстрационная: параметры доставки уточняются для конкретного региона.</p></details></div>
+    </div>
+   </div>
+   <section className="related" id="recommended-products"><div className="section-heading"><div><p className="eyebrow">ЗАВЕРШИТЕ ОБРАЗ</p><h2>Вам может подойти</h2></div></div><ProductGrid items={related} navigate={navigate} {...cardProps}/></section>
+  </div>
+  <div className={`product-sticky-bar${stickyVisible?' is-visible':''}`} aria-hidden={!stickyVisible}>
+   <div className="product-sticky-inner">
+    <div className="product-sticky-summary"><img src={item.image.replace('w=900','w=180')} alt=""/><div><strong>{item.name}</strong><span>{money(item.price)}{color?` · ${color}`:''}</span></div></div>
+    <div className="product-sticky-actions"><button className={`product-sticky-favorite${isFavorite?' is-favorite':''}`} type="button" aria-label={isFavorite?'Убрать из избранного':'Добавить в избранное'} aria-pressed={isFavorite} tabIndex={stickyVisible?0:-1} onClick={toggleFavorite}><Heart aria-hidden="true" fill={isFavorite?'currentColor':'none'}/></button><button className={`button product-sticky-buy${expressOrder?' is-express-order':''}`} type="button" tabIndex={stickyVisible?0:-1} onClick={purchase}>{expressOrder?'Экспресс-заказ':'Добавить в корзину'}</button></div>
+   </div>
+  </div>
+  <TryOnPanel open={tryOnOpen} onClose={()=>setTryOnOpen(false)} image={item.image.replace('w=900','w=1400')} productName={item.name} triggerRef={tryOnButtonRef}/>
+ </main>;
+}
 function Cart({cart,setCart,navigate}) {const [success,setSuccess]=useState(false);const change=(key,qty)=>setCart(cart.map(x=>x.key===key?{...x,qty}:x).filter(x=>x.qty>0));const remove=key=>setCart(cart.filter(x=>x.key!==key));const total=cart.reduce((sum,x)=>sum+x.price*x.qty,0);return <main className="section cart-page"><div className="breadcrumbs"><button onClick={()=>navigate('/')}>Главная</button><span>/</span> Корзина</div><div className="cart-heading"><div><p className="eyebrow">ВАШ ВЫБОР</p><h1>Корзина</h1></div><span>{cart.reduce((a,x)=>a+x.qty,0)} товара</span></div>{success?<div className="order-success"><span>✓</span><h2>Спасибо за интерес к BOUTIQUE 5</h2><p>Это демонстрационный прототип. Заказ не оформлен, оплата не производится.</p><button className="button" onClick={()=>{setSuccess(false);navigate('/catalog')}}>Продолжить покупки</button></div>:cart.length?<div className="cart-layout"><div className="cart-items">{cart.map(x=><CartItem key={x.key} item={x} change={change} remove={remove}/>)}</div><aside className="cart-summary"><p>Итого <b>{money(total)}</b></p><span>Доставка рассчитывается при оформлении</span><button className="button" onClick={()=>setSuccess(true)}>Перейти к оформлению <span>↗</span></button><small>Демонстрационный шаг. Данные и оплата не запрашиваются.</small></aside></div>:<div className="cart-empty"><span>♧</span><h2>Корзина пока пуста</h2><p>Самое время найти вещи для вашего гардероба.</p><button className="button" onClick={()=>navigate('/catalog')}>Перейти в каталог <span>↗</span></button></div>}</main>}
 function CartItem({item,change,remove}) {return <article className="cart-item"><img src={item.image} alt={item.name}/><div className="cart-item-info"><span>{item.category}</span><h2>{item.name}</h2><p>Цвет: {item.color} · Размер: {item.size}</p><div className="quantity"><button aria-label="Уменьшить количество" onClick={()=>change(item.key,item.qty-1)}>−</button><span>{item.qty}</span><button aria-label="Увеличить количество" onClick={()=>change(item.key,item.qty+1)}>+</button></div></div><div className="cart-item-price"><b>{money(item.price*item.qty)}</b><button onClick={()=>remove(item.key)}>Удалить</button></div></article>}
 export default function App({initialPath='/'}) {
