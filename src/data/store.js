@@ -26,8 +26,19 @@ export const MEN_CATEGORIES = [
   { label:'Трикотажные костюмы', path:'men/knit-suits', children:[{label:'Брюки',path:'men/knit-suits/trousers'},{label:'Толстовки',path:'men/knit-suits/sweatshirts'},{label:'Шорты',path:'men/knit-suits/shorts'}] },
   { label:'Шорты', path:'men/shorts' }, { label:'Шорты пляжные', path:'men/swim-shorts' },
 ];
-export const ACCESSORY_CATEGORIES = ['Перчатки','Шапки','Портфели','Рюкзаки','Сумки','Галстуки','Запонки','Кепки','Носки','Органайзеры','Платки карманные','Портмоне','Ремни','Шарфы'].map(label=>({label,path:`accessories/${label.toLowerCase().replaceAll(' ','-')}`}));
+export const ACCESSORY_CATEGORIES = ['Перчатки','Шапки','Портфели','Рюкзаки','Сумки','Галстуки','Запонки','Кепки','Носки','Органайзеры','Платки карманные','Портмоне','Ремни','Шарфы'].map(label=>({label,path:label==='Сумки'?'accessories/bags':`accessories/${label.toLowerCase().replaceAll(' ','-')}`}));
 export const SHOE_CATEGORIES = [{label:'Ботинки',path:'shoes/boots'},{label:'Кроссовки и кеды',path:'shoes/sneakers'},{label:'Туфли',path:'shoes/dress-shoes'}];
+
+const flattenCategoryTree = (categories, ancestors = []) => categories.flatMap(({ label, path, children = [] }) => [
+  { label: ancestors.length ? `${label} — ${ancestors.join(' / ')}` : label, path, department: path.split('/')[0] },
+  ...flattenCategoryTree(children, [...ancestors, label]),
+]);
+
+export const CATALOG_CATEGORY_GROUPS = [
+  { label:'Мужская одежда', department:'men', categories:flattenCategoryTree(MEN_CATEGORIES) },
+  { label:'Обувь', department:'shoes', categories:flattenCategoryTree(SHOE_CATEGORIES) },
+  { label:'Аксессуары', department:'accessories', categories:flattenCategoryTree(ACCESSORY_CATEGORIES) },
+];
 
 export const slugifyBrand = name => name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 export const formatPrice = value => new Intl.NumberFormat('ru-RU').format(value) + ' ₽';
