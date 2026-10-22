@@ -94,7 +94,7 @@ export default function JournalRail({ navigate }) {
  };
  if (!posts.length) return null;
 
- return <section className="section home-journal" aria-labelledby="home-journal-title">
+ return <section className="section home-journal" id="home-journal" aria-labelledby="home-journal-title">
   <div className="section-heading home-journal-heading">
    <div><p className="eyebrow">ЖУРНАЛ BOUTIQUE 5</p><h2 id="home-journal-title">Выбирайте своё</h2></div>
    <a className="text-link" href={withBase('/journal')} onClick={event=>{event.preventDefault();navigate('/journal')}}>Все подборки <span aria-hidden="true">↗</span></a>

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Heart, Menu, Search, Shirt, ShoppingBag, Truck, UserRound, X } from 'lucide-react';
+import { ChevronDown, Heart, Menu, Search, Shirt, ShoppingBag, Truck, UserRound, X } from 'lucide-react';
 import { FaInstagram, FaTelegramPlane, FaWhatsapp } from 'react-icons/fa';
 import { SiGooglemaps } from 'react-icons/si';
 import { SOCIAL_LINKS } from '../config/socialLinks.js';
@@ -72,6 +72,7 @@ function Hero({navigate}) {
   {motionAllowed&&!videoFailed&&<video className={`hero-video${videoReady?' is-ready':''}`} autoPlay muted loop playsInline preload="metadata" aria-hidden="true" onError={()=>setVideoFailed(true)} onCanPlay={startVideo}><source src={withBase('/videos/Homepage_Video_Background.mp4')} type="video/mp4"/></video>}
   <div className="hero-shade"/>
   <div className="hero-copy"><p className="eyebrow light">КОЛЛЕКЦИЯ · ОСЕНЬ 2026</p><h1>Стиль вне времени</h1><p>Современный мужской гардероб на каждый день</p><button className="button button-light" onClick={()=>navigate('/men')}>Смотреть коллекцию <span>↗</span></button></div>
+  <button className="hero-scroll-next" type="button" aria-label="Прокрутить к следующей секции" title="Прокрутить к следующей секции" onClick={()=>document.getElementById('home-journal')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})}><ChevronDown aria-hidden="true" size={28} strokeWidth={1.35}/></button>
  </section>;
 }
 function Newsletter() {
