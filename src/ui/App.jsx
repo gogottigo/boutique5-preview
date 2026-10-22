@@ -10,6 +10,10 @@ import { JournalArticle, JournalIndex } from './JournalPages.jsx';
 import { getJournalPost } from '../data/journal.js';
 import JournalRail from './JournalRail.jsx';
 import SupportChat from './SupportChat.jsx';
+import ContactsPage from './ContactsPage.jsx';
+import AboutPage from './AboutPage.jsx';
+import DeliveryPage from './DeliveryPage.jsx';
+import HelpPage from './HelpPage.jsx';
 import { withBase, withoutBase } from '../utils/paths.js';
 
 const photo = (id, w=900) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=82`;
@@ -28,7 +32,7 @@ function Header({navigate,cart,favs}) {
  useEffect(()=>{if(searchOpen)searchInput.current?.focus()},[searchOpen]);
  useEffect(()=>{if(!menu)return;const closeOutside=event=>{if(menuArea.current&&!menuArea.current.contains(event.target))setMenu(false)};document.addEventListener('pointerdown',closeOutside);return()=>document.removeEventListener('pointerdown',closeOutside)},[menu]);
  useEffect(()=>{const onKeyDown=e=>{if(e.key==='Escape'){if(menuButton.current&&document.activeElement?.closest('#site-menu'))menuButton.current.focus();setMenu(false);setSearchOpen(false);setAccountMessage(false)}};window.addEventListener('keydown',onKeyDown);return()=>{window.removeEventListener('keydown',onKeyDown);if(menuTimer.current)clearTimeout(menuTimer.current)}},[]);
- const socials=[['Telegram',FaTelegramPlane,SOCIAL_LINKS.telegram],['Google Maps',SiGooglemaps,SOCIAL_LINKS.googleMaps],['WhatsApp',FaWhatsapp,SOCIAL_LINKS.whatsapp],['Instagram',FaInstagram,SOCIAL_LINKS.instagram]];
+ const socials=[['Telegram',FaTelegramPlane,SOCIAL_LINKS.telegram,'social-icon-telegram'],['Google Maps',SiGooglemaps,withBase('/contacts'),true,'social-icon-maps'],['WhatsApp',FaWhatsapp,SOCIAL_LINKS.whatsapp,false,'social-icon-whatsapp'],['Instagram',FaInstagram,SOCIAL_LINKS.instagram,false,'social-icon-instagram']];
  const go=to=>{navigate(to);setMenu(false);setSearchOpen(false)};
  return <header className="header"><div className="header-main"><div className="header-left">
   <div className="menu-area" ref={menuArea} onMouseEnter={openOnHover} onMouseLeave={scheduleMenuClose}>
@@ -37,7 +41,7 @@ function Header({navigate,cart,favs}) {
     <MegaMenu navigate={go}/>
    </div>
   </div>
-  <div className="social-links" role="group" aria-label="Социальные сети и местоположение">{socials.map(([label,Icon,url])=>url?<a className="social-link" href={url} key={label} aria-label={label} title={label} target="_blank" rel="noreferrer"><Icon aria-hidden="true"/></a>:<span className="social-link is-unavailable" key={label} role="img" aria-label={label} title={`${label}: ссылка не задана`}><Icon aria-hidden="true"/></span>)}</div>
+  <div className="social-links" role="group" aria-label="Социальные сети и местоположение">{socials.map(([label,Icon,url,internal,iconClass])=>url?<a className="social-link" href={url} key={label} aria-label={label} title={label} target={internal?undefined:'_blank'} rel={internal?undefined:'noreferrer'} onClick={internal?e=>{e.preventDefault();go('/contacts')}:undefined}><Icon className={iconClass} aria-hidden="true"/></a>:<span className="social-link is-unavailable" key={label} role="img" aria-label={label} title={`${label}: ссылка не задана`}><Icon className={iconClass} aria-hidden="true"/></span>)}</div>
   </div>
   <Logo />
   <div className="actions header-actions">
@@ -51,7 +55,7 @@ function Header({navigate,cart,favs}) {
   </div>
  </div></header>
 }
-function Footer({navigate}) {const links=[['Мужская одежда','/men'],['Обувь','/shoes'],['Аксессуары','/accessories'],['Распродажа','/sale'],['Бренды','/brands']];return <footer className="footer"><div><Logo /><p>Продуманный гардероб.<br/>Свободный ритм жизни.</p></div><div><b>Коллекции</b>{links.map(([label,url])=><a key={url} href={withBase(url)} onClick={e=>{e.preventDefault();navigate(url)}}>{label}</a>)}</div><div><b>О проекте</b><p>Демонстрационная концепция интернет-магазина мужской одежды.</p><a href={withBase('/catalog')} onClick={e=>{e.preventDefault();navigate('/catalog')}}>Все товары</a></div><div className="copyright">© BOUTIQUE 5 · Демонстрационный каталог · 2026</div></footer>}
+function Footer({navigate}) {const links=[['Мужская одежда','/men'],['Обувь','/shoes'],['Аксессуары','/accessories'],['Распродажа','/sale'],['Бренды','/brands']];const projectLinks=[['О компании','/about/'],['Доставка и оплата','/delivery/'],['Помощь','/help/'],['Контакты','/contacts/']];return <footer className="footer"><div className="footer-brand-column"><Logo /><div className="footer-brand-copy"><h2>Boutique N5</h2><p>Мужская одежда, обувь и аксессуары класса люкс.</p><p>С 1999 года мы отбираем лучшие итальянские бренды, воплощающие философию <em>Made in Italy</em> — безупречное качество, элегантность и ручную работу.</p><p>Коллекции объединяют изделия из разных регионов Италии — от костюмов до обуви и аксессуаров, многие из которых создаются вручную.</p><p>С 2013 года интернет-бутик Boutique N5 делает премиальную мужскую моду доступной по всей России.</p></div></div><div><b>Коллекции</b>{links.map(([label,url])=><a key={url} href={withBase(url)} onClick={e=>{e.preventDefault();navigate(url)}}>{label}</a>)}</div><div><b>О проекте</b>{projectLinks.map(([label,url])=><a key={url} href={withBase(url)} onClick={e=>{e.preventDefault();navigate(url)}}>{label}</a>)}</div><div className="copyright">© BOUTIQUE 5 · Демонстрационный каталог · 2026</div></footer>}
 function Hero({navigate}) {
  const [motionAllowed,setMotionAllowed]=useState(false),[videoFailed,setVideoFailed]=useState(false),[videoReady,setVideoReady]=useState(false);
  useEffect(()=>{
@@ -67,6 +71,31 @@ function Hero({navigate}) {
   {motionAllowed&&!videoFailed&&<video className={`hero-video${videoReady?' is-ready':''}`} autoPlay muted loop playsInline preload="metadata" aria-hidden="true" onError={()=>setVideoFailed(true)} onCanPlay={startVideo}><source src={withBase('/videos/Homepage_Video_Background.mp4')} type="video/mp4"/></video>}
   <div className="hero-shade"/>
   <div className="hero-copy"><p className="eyebrow light">КОЛЛЕКЦИЯ · ОСЕНЬ 2026</p><h1>Стиль вне времени</h1><p>Современный мужской гардероб на каждый день</p><button className="button button-light" onClick={()=>navigate('/men')}>Смотреть коллекцию <span>↗</span></button></div>
+ </section>;
+}
+function Newsletter() {
+ const [notice,setNotice]=useState('');
+ const submit=event=>{
+  event.preventDefault();
+  // TODO: connect to an approved first-party mailing-list API.
+  // Do not send or store email addresses before that integration exists.
+  setNotice('Подписка пока не подключена к сервису рассылки. Адрес никуда не отправлен.');
+ };
+ return <section className="newsletter" aria-labelledby="newsletter-title">
+  <img className="newsletter-image" src={withBase('/images/journal/lbm1911/lbm1911_3.jpg')} alt="" loading="lazy" decoding="async"/>
+  <div className="newsletter-shade" aria-hidden="true"/>
+  <div className="newsletter-content">
+   <p className="eyebrow light">BOUTIQUE 5 — PRIVATE EDITION</p>
+   <h2 id="newsletter-title">Оставайтесь в нашем кругу</h2>
+   <p className="newsletter-description">Новые коллекции, избранные вещи и истории о стиле — в вашей почте.</p>
+   <form className="newsletter-form" onSubmit={submit}>
+    <label className="visually-hidden" htmlFor="newsletter-email">Ваш e-mail</label>
+    <input id="newsletter-email" name="email" type="email" autoComplete="email" placeholder="Ваш e-mail" required/>
+    <button type="submit">Подписаться <span aria-hidden="true">↗</span></button>
+   </form>
+   <p className="newsletter-note">Форма пока не подключена к сервису рассылки. Введённый адрес не отправляется.</p>
+   {notice&&<p className="newsletter-status" role="status">{notice}</p>}
+  </div>
  </section>;
 }
 function Home({navigate}) {
@@ -87,6 +116,7 @@ function Home({navigate}) {
     <span className="home-category-arrow" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M4 10h11M10 4l6 6-6 6" stroke="currentColor" strokeWidth="1.2"/></svg></span>
    </a>)}</div>
   </section>
+  <Newsletter/>
  </main>;
 }
 function FilterPanel({filters,setFilters}) {const update=(k,v)=>setFilters({...filters,[k]:v});return <aside className="filters"><label>Категория<select value={filters.category} onChange={e=>update('category',e.target.value)}><option value="">Все категории</option>{['Верхняя одежда','Трикотаж','Рубашки','Брюки','Обувь','Аксессуары'].map(x=><option key={x}>{x}</option>)}</select></label><label>Размер<select value={filters.size} onChange={e=>update('size',e.target.value)}><option value="">Все размеры</option>{['40','41','42','43','44','46','48','50','52','54'].map(x=><option key={x}>{x}</option>)}</select></label><label>Цвет<select value={filters.color} onChange={e=>update('color',e.target.value)}><option value="">Любой цвет</option>{[...new Set(products.map(p=>p.color))].map(x=><option key={x}>{x}</option>)}</select></label><div className="price-label">Цена, ₽</div><div className="price-inputs"><input type="number" aria-label="Цена от" placeholder="От" value={filters.min} onChange={e=>update('min',e.target.value)}/><input type="number" aria-label="Цена до" placeholder="До" value={filters.max} onChange={e=>update('max',e.target.value)}/></div><button className="clear-filters" onClick={()=>setFilters({category:'',size:'',color:'',min:'',max:''})}>Сбросить фильтры</button></aside>}
@@ -112,8 +142,8 @@ export default function App({initialPath='/'}) {
  useEffect(()=>{
   const route=path.split('?')[0].replace(/\/+$/,'')||'/';
   const article=route.startsWith('/journal/')?getJournalPost(route.split('/').pop()):null;
-  const title=route==='/journal'?'Журнал — BOUTIQUE 5':article?`${article.title} — Журнал BOUTIQUE 5`:'BOUTIQUE 5 — мужской гардероб';
-  const description=route==='/journal'?'Идеи образов, сочетания вещей и рекомендации для современного мужского гардероба.':article?.excerpt||'BOUTIQUE 5 — концепция современного мужского гардероба.';
+  const title=route==='/help'?'Помощь — BOUTIQUE 5':route==='/delivery'?'Доставка и оплата — BOUTIQUE 5':route==='/about'?'О компании — BOUTIQUE 5':route==='/journal'?'Журнал — BOUTIQUE 5':article?`${article.title} — Журнал BOUTIQUE 5`:'BOUTIQUE 5 — мужской гардероб';
+  const description=route==='/help'?'Информация по оформлению и отмене заказа, а также возврату товара в BOUTIQUE 5.':route==='/delivery'?'Условия доставки и оплаты заказов Boutique N5, сроки доставки по городам России и накопительная скидка.':route==='/about'?'Премиальный бутик мужской одежды, обуви и аксессуаров Boutique N5: история, философия Made in Italy и интернет-магазин.':route==='/journal'?'Идеи образов, сочетания вещей и рекомендации для современного мужского гардероба.':article?.excerpt||'BOUTIQUE 5 — концепция современного мужского гардероба.';
   document.title=title;
   const meta=document.querySelector('meta[name="description"]');
   if(meta)meta.setAttribute('content',description);
@@ -134,7 +164,11 @@ export default function App({initialPath='/'}) {
  };
  const route=path.split('?')[0].replace(/\/+$/,'')||'/';
  let page;
- if(route==='/journal')page=<JournalIndex navigate={navigate}/>;
+ if(route==='/contacts')page=<ContactsPage navigate={navigate}/>;
+ else if(route==='/about')page=<AboutPage/>;
+ else if(route==='/delivery')page=<DeliveryPage/>;
+ else if(route==='/help')page=<HelpPage/>;
+ else if(route==='/journal')page=<JournalIndex navigate={navigate}/>;
  else if(route.startsWith('/journal/'))page=<JournalArticle post={getJournalPost(route.split('/').pop())} navigate={navigate} favs={favs} toggleFav={toggleFav}/>;
  else if(route==='/brands')page=<BrandsPage navigate={navigate}/>;
  else if(route.startsWith('/brands/')){

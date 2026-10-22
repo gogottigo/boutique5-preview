@@ -38,7 +38,10 @@ export default function MegaMenu({ navigate }) {
   </nav>
   <nav className="mega-menu-secondary" aria-label="Специальные разделы">
    <a href={withBase('/sale')} onClick={event=>{event.preventDefault();navigate('/sale')}}>Распродажа <span aria-hidden="true">↗</span></a>
-   <a href={withBase('/catalog')} onClick={event=>{event.preventDefault();navigate('/catalog')}}>Коллекции <span aria-hidden="true">↗</span></a>
+   <a href={withBase('/contacts/')} onClick={event=>{event.preventDefault();navigate('/contacts')}}>Контакты <span aria-hidden="true">↗</span></a>
+   <a href={withBase('/about/')} onClick={event=>{event.preventDefault();navigate('/about')}}>О компании <span aria-hidden="true">↗</span></a>
+   <a href={withBase('/delivery/')} onClick={event=>{event.preventDefault();navigate('/delivery')}}>Доставка и оплата <span aria-hidden="true">↗</span></a>
+   <a href={withBase('/help/')} onClick={event=>{event.preventDefault();navigate('/help')}}>Помощь <span aria-hidden="true">↗</span></a>
   </nav>
  </div>;
 }

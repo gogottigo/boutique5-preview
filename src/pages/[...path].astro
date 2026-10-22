@@ -3,9 +3,16 @@ import App from '../ui/App.jsx';
 import Layout from '../layouts/Layout.astro';
 import '../styles/global.css';
 import { BRANDS, products, slugifyBrand } from '../data/store.js';
+const isAboutPage = Astro.params.path === 'about';
+const isDeliveryPage = Astro.params.path === 'delivery';
+const isHelpPage = Astro.params.path === 'help';
 export function getStaticPaths() {
   return [
+    { params: { path: 'about' } },
+    { params: { path: 'delivery' } },
+    { params: { path: 'help' } },
     { params: { path: 'catalog' } },
+    { params: { path: 'contacts' } },
     { params: { path: 'cart' } },
     ...['men','accessories','shoes','sale','brands'].map(path => ({ params: { path } })),
     ...BRANDS.map(brand => ({ params: { path: `brands/${slugifyBrand(brand)}` } })),
@@ -13,6 +20,6 @@ export function getStaticPaths() {
   ];
 }
 ---
-<Layout>
+<Layout title={isHelpPage ? 'Помощь — BOUTIQUE 5' : isDeliveryPage ? 'Доставка и оплата — BOUTIQUE 5' : isAboutPage ? 'О компании — BOUTIQUE 5' : undefined} description={isHelpPage ? 'Информация по оформлению и отмене заказа, а также возврату товара в BOUTIQUE 5.' : isDeliveryPage ? 'Условия доставки и оплаты заказов Boutique N5, сроки доставки по городам России и накопительная скидка.' : isAboutPage ? 'Премиальный бутик мужской одежды, обуви и аксессуаров Boutique N5: история, философия Made in Italy и интернет-магазин.' : undefined}>
 <App client:load />
 </Layout>
