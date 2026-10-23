@@ -21,7 +21,8 @@ const photo = (id, w=900) => `https://images.unsplash.com/${id}?auto=format&fit=
 const read = key => { try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; } };
 
 function Logo() {
- return <a className="logo" href={withBase('/')} aria-label="BOUTIQUE 5 — на главную"><img src={withBase('/images/BoutiqueN5_OG_logo.jpg')} alt="BOUTIQUE 5" /></a>;
+ const logoSrc=withBase('/images/BoutiqueN5_logo.svg');
+ return <a className="logo" href={withBase('/')} aria-label="BOUTIQUE 5 — на главную"><span className="logo-art" style={{'--logo-mark-mask':`url("${logoSrc}")`}}><img src={logoSrc} alt="BOUTIQUE 5" /><span className="logo-blue-fill" aria-hidden="true"/></span></a>;
 }
 function Header({navigate,cart,favs}) {
  const [menu,setMenu]=useState(false),[searchOpen,setSearchOpen]=useState(false),[query,setQuery]=useState(''),[accountMessage,setAccountMessage]=useState(false);
